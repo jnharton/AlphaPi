@@ -45,13 +45,21 @@ x = 0
 font = ImageFont.load_default()
 # font = ImageFont.truetype('minecraftia.ttf',8)
 
-#The version of the string that is saved to file
-outputstring = ""
-#The version of the string that is displayed
-copy_of_output = ""
+outputstring = "" #The version of the string that is saved to file
+copy_of_output = "" #The version of the string that is displayed
+
 black = "black"
 white = "white"
 escape = 27
+
+KBD_KEY_ESC = 27
+
+KBD_KEY_1 = 49
+KBD_KEY_2 = 50
+KBD_KEY_3 = 51
+
+KBD_KEY_LF = 10
+KBD_KEY_CR = 13
 
 modifier = 0
 
@@ -63,41 +71,96 @@ def main(stdscr):
     character = stdscr.getch()
     return character
 
+
 def fontchooser():
     return ("Nothing")
 
-def linewriter(copy_of_output,string_adj_len):
+
+def clear_screen():
+    draw.rectangle((0,0,width,height),outline=0,fill=black)
+
+
+def write_text(x, y, text):
+    draw.text((x, y), text, font=font, fill=white)
+
+
+def write_screen_3line(lines):
+    y = [0, 8, 16]
+    
+    index = 0
+    
+    for line in lines:
+        write_text(x, top+y[index], line)
+        index = index + 1
+        
+        if index >= 3:
+            break
+
+
+def write_screen_4line(lines):
+    y = [-2, 6, 14, 24]
+    
+    index = 0
+    
+    for line in lines:
+        write_text(x, top+y[index], line)
+        index = index + 1
+        
+        if index >= 4:
+            break
+
+
+def linewriter(copy_of_output, string_adj_len):
     if string_adj_len <= 21:
-        draw.text((x, top+0), copy_of_output, font=font, fill=white)
+        #draw.text((x, top+0), copy_of_output, font=font, fill=white)
+        write_text(x, top+0, copy_of_output)
     elif string_adj_len <= 42:
-        draw.text((x, top+0), copy_of_output[:21], font=font, fill=white)
-        draw.text((x, top+8), copy_of_output[21:], font=font, fill=white)
+        #draw.text((x, top+0), copy_of_output[:21], font=font, fill=white)
+        #draw.text((x, top+8), copy_of_output[21:], font=font, fill=white)
+        write_text((x, top+0), copy_of_output[:21])
+        write_text((x, top+8), copy_of_output[:21])
     elif string_adj_len <= 63:
-        draw.text((x, top+0), copy_of_output[:21], font=font, fill=white)
-        draw.text((x, top+8), copy_of_output[21:42], font=font, fill=white)
-        draw.text((x, top+16), copy_of_output[42:], font=font, fill=white)
+        #draw.text((x, top+0), copy_of_output[:21], font=font, fill=white)
+        #draw.text((x, top+8), copy_of_output[21:42], font=font, fill=white)
+        #draw.text((x, top+16), copy_of_output[42:], font=font, fill=white)
+        write_text(x, top+0,  copy_of_output[:21])
+        write_text(x, top+8,  copy_of_output[21:42])
+        write_text(x, top+16, copy_of_output[42:])  
     # Changes distance from top to prevent last line from going off of screen
     elif string_adj_len <= 84:
-        draw.text((x, top-2), copy_of_output[:21], font=font, fill=white)
-        draw.text((x, top+6), copy_of_output[21:42], font=font, fill=white)
-        draw.text((x, top+14), copy_of_output[42:63], font=font, fill=white)
-        draw.text((x, top+23), copy_of_output[63:], font=font, fill=white)
+        #draw.text((x, top-2), copy_of_output[:21], font=font, fill=white)
+        #draw.text((x, top+6), copy_of_output[21:42], font=font, fill=white)
+        #draw.text((x, top+14), copy_of_output[42:63], font=font, fill=white)
+        #draw.text((x, top+23), copy_of_output[63:], font=font, fill=white)
+        write_text((x, top-2), copy_of_output[:21])
+        write_text(x, top-2), copy_of_output[:21],
+        write_text((x, top+6), copy_of_output[21:42])
+        write_text((x, top+23), copy_of_output[63:])
 
+
+''' Word Processor Menu '''
 def wordprocessor_menu():
-    
-    # Menu
     quit=False
 
-    draw.rectangle((0,0,width,height),outline=0,fill=black)
-    draw.text((x, top+0), "1. Create new file", font=font, fill=white)
-    draw.text((x, top+8), "2. Edit existing file", font=font, fill=white)
-    draw.text((x, top+16), "3. Help", font=font, fill=white)
+    #draw.rectangle((0,0,width,height),outline=0,fill=black)
+    clear_screen()
+    
+    #draw.text((x, top+0), "1. Create new file", font=font, fill=white)
+    #draw.text((x, top+8), "2. Edit existing file", font=font, fill=white)
+    #draw.text((x, top+16), "3. Help", font=font, fill=white)
+    
+    lines = [ "1. Create new file", "2. Edit existing file", "3. Help"]
+    
+    write_screen_3line( lines )
+    
     disp.image(image)
     disp.show()
+    
     while quit==False:
         keypress = curses.wrapper(main)
         print (keypress)
-        if (keypress == 49):
+        
+        if (keypress == KBD_KEY_1):
             done = False
             filename = ""
 
@@ -105,24 +168,28 @@ def wordprocessor_menu():
                 keypress = curses.wrapper(main)
                 if (keypress == escape):
                     return
-                elif (keypress == curses.KEY_ENTER or keypress == 10 or keypress == 13):
+                elif (keypress == curses.KEY_ENTER or keypress == KBD_KEY_LF or keypress == KBD_KEY_CR):
                     done = True
                 elif (keypress == 256 or keypress == curses.KEY_BACKSPACE):
                     filename = filename[:-1]
                 # Make sure it's a legal file character
                 elif ((keypress >= 0 and keypress <= 57) or (keypress >= 65 and keypress <= 90) or (keypress >= 97 and keypress <= 122) or (keypress == 95)):
                     filename = filename + chr(keypress)
-                draw.rectangle((0,0,width,height),outline=0,fill=black)
+                
+                #draw.rectangle((0,0,width,height),outline=0,fill=black)
+                clear_screen()
+                
                 draw.text((x, top+0), "Enter the file name:", font=font, fill=white)
                 draw.text((x, top+8), filename[:21], font=font, fill=white)
                 draw.text((x, top+16), filename[21:], font=font, fill=white)
+                
                 disp.image(image)
                 disp.show()
+            
             wordprocessor_edit(filename)
-                
-        elif(keypress == 50):
+        elif(keypress == KBD_KEY_2):
             return
-        elif(keypress == 51):
+        elif(keypress == KBD_KEY_3):
             while (keypress != escape):
                 keypress = curses.wrapper(main)
                 draw.rectangle((0,0,width,height),outline=0,fill=black)
@@ -132,25 +199,31 @@ def wordprocessor_menu():
                 disp.image(image)
                 disp.show()
         elif(keypress==escape):
-            draw.rectangle((0,0,width,height),outline=0,fill=black)
+            #draw.rectangle((0,0,width,height),outline=0,fill=black)
+            clear_screen()
+            
             disp.image(image)
             disp.show()
-            quit = True
             
+            quit = True
+
+
 def wordprocessor_edit(filename):
     global outputstring
     global copy_of_output
     global modifier
+    
     while True:
         # This is the section that logs keypresses for the whole running of the program...might need to move it to a separate section though if line_writer becomes its own "app"
         keypress = curses.wrapper(main)
         #print ("key:", keypress)
+        
         if (keypress == curses.KEY_ENTER or keypress == 10 or keypress == 13):
             outputstring = outputstring + "\n"
             if len(copy_of_output) <= 21:
                 modifier = 21 - len(copy_of_output)
             else:
-                modifier = 21- (len(copy_of_output)%21)
+                modifier = 21 - (len(copy_of_output)%21)
             i = 0
             while i < modifier:
                 copy_of_output = copy_of_output + " "
@@ -167,15 +240,22 @@ def wordprocessor_edit(filename):
             copy_of_output = copy_of_output[:-1]
             if ((len(copy_of_output)//20) - (len(copy_of_output) % 20)) == 1:
                 copy_of_output = copy_of_output.rstrip()
+        
         draw.rectangle((0,0,width,height),outline=0,fill=black)
+        
         if (len(copy_of_output)>84):
             copy_of_output = copy_of_output[21:]
+        
         linewriter(copy_of_output,len(copy_of_output))
+        
         disp.image(image)
         disp.show()
-        
+
+
+''' Main Menu '''
 def main_menu():
     quit = False
+    
     draw.rectangle((0,0,width,height),outline=0,fill=black)
     draw.text((x, top+0), "1. Word Processor", font=font, fill=white)
     draw.text((x, top+8), "2. Backup Files", font=font, fill=white)
@@ -183,18 +263,24 @@ def main_menu():
     
     disp.image(image)
     disp.show()
+    
     while quit==False:
         keypress = curses.wrapper(main)
-        if (keypress == 49):
+        
+        if (keypress == KBD_KEY_1):
             wordprocessor_menu()
-        elif(keypress == 50):
+        elif(keypress == KBD_KEY_2):
             backup_files()
-        elif(keypress == 51 or keypress == escape):
+        elif(keypress == KBD_KEY_3 or keypress == escape):
             draw.rectangle((0,0,width,height),outline=0,fill=black)
+            
             disp.image(image)
             disp.show()
+            
             quit = True
+    
     sys.exit(0)
+
 
 # Start
 main_menu()
